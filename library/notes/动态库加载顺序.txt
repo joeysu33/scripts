@@ -1,0 +1,43 @@
+Glibc安装的库中有一个名为ld-Linux.so.X其中X为一个数字（版本），
+在不同的平台上可以通过ldd查看
+$ldd /bin/cat
+linux-vdso.so.1 =>  (0x00007fff9176f000)
+libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f16424d4000)
+/lib64/ld-linux-x86-64.so.2 (0x00005592863c5000)
+
+其中linux-vdso.so.1不是一个实际的库文件，它是一个虚拟库文件用来
+和kernel交互。
+ld-linux-x86_64.so.2是专门用来负责寻找库文件的库。以cat为例，cat
+首先告诉ld-linux-x86_64.so.2它需要libc.so.6这个库文件，ld-linux-x86_64.so
+将按照一定的顺序来查找libc.so.6，再给cat进行调用。
+
+===========================================================
+问题1：ld-linux-x86_64.so.2这个库是如何被找到的？
+ld-linux-x86_64.so.2这个库的位置是通过gcc编译器写死在里面的。gcc写到程序中
+ld-linux-x86_64.so.2的位置是可以改变的，通过gcc的spec文件。
+
+============================================================
+运行时，ld-linux.so查找共享库的顺序
+1.ld-linux.so在可执行的目标中被指定，可以通过readelf命令查看。
+2.ld-linux.so缺省在/usr/lib和lib中搜索，当glibc安装到/usr/local中时，
+  它查找/usr/local/lib
+3.LD_LIBRARY_PATH 环境变量中设定的路径
+4./etc/ld.so.conf (或/usr/local/etc/ld.so.conf)中所指定的路径,
+  由ldconfig生成的二进制ld.so.cache中。
+  
+============================================================
+编译时，ld-linux.so查找共享库的顺序
+1.ld-linux.so由gcc的spec文件所指定
+2.gcc --print-search-dirs所打印的路径，主要是libgcc_s.so等库
+3.LIBRARY_PATH环境变量所设定的路径，或编译的命令行中指定 -L/usr/local/lib
+4.binutils中的ld所设定的缺省搜索路径顺序，编译binutils时指定
+  可以通过 `ld --verbose | grep SEARCH` 来查看
+  ld --verbose | grep SEARCH | awk 'BEGIN{RS="; "} { print $0;}'
+  可以按照行来查看记录
+5.二进制程序的搜索路径顺序为PATH环境变量中所设定，一般/usr/local/bin高于/usr/bin
+6.编译的头文件的搜索路径顺序与library的查找顺序类似，一般/usr/local/include高于/usr/include
+
+
+
+
+

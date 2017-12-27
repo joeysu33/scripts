@@ -1,0 +1,44 @@
+ELF文件结构中主要的段
+.text (.code) 代码段,例如
+ for(int i=0; i<10; ++i)...
+
+.bss 未初始化的全局变量或静态变量（也包含值为0的变量)
+ int x = 0; //虽然有初始值，但是初始值为0，被优化
+ int y; //没有初始值的全局变量
+ static int z; //没有初始值的静态变量
+
+.data 已经初始化的全局变量或静态变量，例如
+ int x = 1000; //全局变量
+ static int x = 100000; //静态变量
+
+.comment 编译器版本信息
+
+.rodata 只读段（代码中的字符串常量，或const常量)，例如
+ const static int x=100; //x存储到.rodata段
+ printf("%d\n", x); //"%d\n" 存储到.rodata段
+
+.debug 调试信息
+
+.dynamic 动态链接信息
+
+.hash 符号哈希表
+
+.line 调试信息的行号表
+
+.note 额外的编译信息
+
+.strtab 字符串表，用于存储ELF文件中用到的各种字符串
+
+.symtab 符号表
+
+.shstrtab Section String Table 段名表
+
+.plt
+.got (Global Offset Table) 动态链接的跳转表和全局入口表
+
+.init
+.fini 程序初始化与终结代码段
+
+
+
+
